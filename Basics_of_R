@@ -1,0 +1,82 @@
+# ----------------------------------------------------------
+# R Basics: Variables, Vectors, Lists, Data Frames
+# Logical Conditions and Indexing
+# Author: Sakshi Sharma
+# ----------------------------------------------------------
+
+# --- Variables and Data Types ---
+patient_id <- c(101, 102)
+age <- c(56, 32)
+weight_kg <- c(70.5, 78)
+is_male <- c(TRUE, FALSE)
+patient_note <- c("Subject enrolled for Drug A", "Subject gets a Placebo")
+
+print(patient_id)    #print helps to print the variable
+str(age)             #str function gives the structure of the variable like num(numeric), chr(character) or logi(logical)
+str(weight_kg)
+str(is_male)
+str(patient_note)
+
+# --- Vectors ---
+# A sequence of values (same type)
+ages <- c(45, 60, 50, 37, 64)
+treatments <- c("Drug A", "Drug B", "Drug A", "Placebo", "Drug B")
+serious_ae <- c(TRUE, FALSE, FALSE, TRUE, FALSE)
+
+# Check structure
+str(ages)
+length(treatments)    #Length function gives the number of entries for that particular variable
+
+# Indexing
+ages[1]        # [1] gives first element
+ages[2]        # [2] gives second element
+treatments[2:4]  # [2 : 4] gives elements 2 to 4, the colon : here acts as to meaning from point a to point b, in this case from 2 to 4
+ages[ages < 60] #Subjects who are younger than 60
+serious_ae[ages < 60]  # serious AEs for patients younger than 60, this gives us the serious adverse events for subjects younger than 60, in this scenario we have 3 subjects younger than 60 so the 3 values (TRUE/FALSE) correspond to those 3 subjects
+
+
+# --- Lists ---
+# Can contain different types of variables meaning you can have character numeric boolean all in one structure
+subject1 <- list(
+  id = 101,
+  age = 56,
+  arm = "Drug A",
+  serious_ae = TRUE
+)
+print(subject1)
+
+subject1$arm         # the dollar sign : $ helps you to access the variable inside the list by name
+subject1[["age"]]    # alternative syntax to above
+names(subject1)      # this gives us a list of elements
+
+# --- Data Frames ---
+# Table-like structure: rows = observations, columns = variables
+df <- data.frame(
+  id = c(101, 102, 103, 104),
+  age = c(56, 60, 45, 70),
+  arm = c("Drug A", "Placebo", "Drug B", "Drug A"),
+  serious_ae = c(TRUE, FALSE, FALSE, TRUE)
+)
+print(df)
+
+# View structure
+str(df)
+summary(df)       #summary function gives you a statistical summary of the data structure
+head(df)          #head function gives the first 4-6 rows of the data
+
+# Access columns, when you use [ x, y] the part before the comma is for rows and the part after the comma is for columns
+df$age
+df[ , "arm"]       #Since there's nothing before the comma,it means that give me all rows of the column named "arm", So this will return a vector (or factor) containing the values of the arm column.
+df[1:2, ]          # first 2 rows
+df[df$age > 50, ]  # patients older than 50
+
+# --- Logical Conditions ---
+# Filtering with logical expressions
+df[df$serious_ae == FALSE, ]
+df[df$arm == "Drug A" & df$age >= 60, ]
+
+# Create new variables
+df$age_group <- ifelse(df$age >= 60, "OLD", "Young")
+table(df$age_group)
+
+# --- End of Script ---
