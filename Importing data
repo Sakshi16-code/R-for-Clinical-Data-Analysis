@@ -1,0 +1,85 @@
+# ----------------------------------------------------------
+# Module: Importing Clinical Data (CSV, Excel, SAS, merge)
+# Author: Sakshi Sharma
+# ----------------------------------------------------------
+
+# Load necessary libraries
+library(readr)     # for read_csv()
+library(readxl)    # for read_excel()
+library(haven)     # for read_sas(), read_xpt()
+library(dplyr)     # optional: for data manipulation
+library(janitor)   # optional: for cleaning column names
+
+# --- 1. Importing CSV files ---
+
+# Basic base R method
+dm_csv_base <- read.csv("~/R trainings/my progress/R course/Chapter 1/clinical_sample_data/dm.csv", stringsAsFactors = FALSE)
+
+# Tidyverse method (recommended)
+dm_csv_tidy <- read_csv("~/R trainings/my progress/R course/Chapter 1/clinical_sample_data/dm.csv")
+
+# Preview
+head(dm_csv_tidy)
+str(dm_csv_tidy)   #str function helps to check structure and data types of the data
+
+dm_csv_tidy <- clean_names(dm_csv_tidy) %>% #Clean_names helps to set column names to lowercase with underscores like in this case this helps to convert usubjid to character for joins(merge in sas)
+  mutate(usubjid = as.character(usubjid))
+
+glimpse(dm_csv_tidy)  #glimpse function helps to display the compact summary of data structure
+
+# --- 2. Importing Excel files (.xlsx) ---
+
+# Read specific sheet (assume 'ae.xlsx' with AE data)
+ae_excel <- read_excel("~/R trainings/my progress/R course/Chapter 1/clinical_sample_data/ae.xlsx", sheet = "AE")
+
+# Optional: clean column names
+ae_excel <- clean_names(ae_excel)
+
+# Preview
+glimpse(ae_excel)
+
+
+# --- 3. Importing SAS datasets (.sas7bdat) ---
+
+# Import SDTM Exposure dataset (EX)
+ex_sas <- read_sas("~/R trainings/my progress/R course/Chapter 1/clinical_sample_data/ex.sas7bdat")
+
+# Preview structure
+summary(ex_sas)   #Get summary statistics of dataset columns
+str(ex_sas)
+
+
+# --- 4. Importing SAS transport files (.xpt) ---
+
+# Example: SDTM Demographics dataset (DM) as XPT
+dm_xpt <- read_xpt("~/R trainings/my progress/R course/Chapter 1/clinical_sample_data/dm.xpt")
+
+# Convert labelled values (optional)
+dm_xpt <- haven::as_factor(dm_xpt)  #as_factor function helps to convert labelled variables to factors
+dm_xpt <- clean_names(dm_xpt)
+
+
+# --- 5. merged ---
+
+# Merge DM and AE datasets by subject ID (assuming column USUBJID)
+merged <- left_join(ae_excel, dm_csv_tidy, by = "usubjid")   #left_join function helps to join AE data with DM data on common 'usubjid' column
+head(merged)
+
+#Bonus: 
+
+# Simple missing value summary
+sapply(dm_xpt, function(x) sum(is.na(x)))   #sapply function helps to summarize number of missing values per column in DM XPT dataset
+
+# Use visdat package for visual sneak-peak into the data
+# Why Visdat- It helps to visualize missing data patterns and data types with visdat package and  quickly identify columns or rows with missing values
+ 
+#install.packages("visdat")
+library(visdat)
+vis_dat(merged,
+        sort_type = TRUE,         # 'sort_type = TRUE' sorts columns by data type for easier interpretation
+        palette = "default",      # 'palette = "default"' uses the default color palette
+        warn_large_data = TRUE,   # 'warn_large_data = TRUE' shows a warning if the dataset is large
+        large_data_size = 9e+05   # 'large_data_size = 9e+05' sets the threshold for large datasets (900,000 rows)
+         )
+
+# --- End of Script ---
